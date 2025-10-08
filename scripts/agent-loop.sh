@@ -2,7 +2,7 @@
 # AI Agent Loop Script
 # This script runs Qwen in an infinite loop for continuous automated programming
 
-set -e
+# Note: NOT using 'set -e' here because we want the loop to continue even if individual Qwen commands fail
 
 # Accept project directory as argument (optional)
 PROJECT_DIR="${1:-$(pwd)}"
