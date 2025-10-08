@@ -29,8 +29,8 @@ for project_dir in ../*/.agent; do
     # Get project info
     cd "$project_path"
     
-    # Check if running
-    PROJECT_PID=$(pgrep -f "agent-loop.sh.*$project_name" 2>/dev/null || echo "")
+    # Check if running - look for the project path in process args
+    PROJECT_PID=$(pgrep -f "agent-loop.sh.*$project_path" 2>/dev/null || echo "")
     
     # Get version and time constraint
     if [ -f ".agent/time_log.txt" ]; then
