@@ -1,6 +1,11 @@
 #!/bin/bash
 # AI-Agent Project Creator
 # Sets up a new project for using the AI agent loop technique with Qwen
+#
+# Modes:
+#   Interactive: Run without env vars, will prompt for all inputs
+#   Non-interactive: Set NON_INTERACTIVE=1 and provide env vars:
+#     - PROJECT_NAME, TIME_DURATION, PROMPT_TYPE, CUSTOM_PROMPT (or PROJECT_TYPE)
 
 set -e
 
@@ -11,13 +16,40 @@ if ! command -v qwen &> /dev/null; then
     exit 1
 fi
 
-# Get project name from argument or prompt
-echo "🚀 AI-Agent Project Creator"
-echo "=============================="
-echo ""
+# Detect mode
+if [ "${NON_INTERACTIVE:-0}" = "1" ]; then
+    # Non-interactive mode - validate required env vars
+    if [ -z "$PROJECT_NAME" ] || [ -z "$TIME_DURATION" ] || [ -z "$PROMPT_TYPE" ]; then
+        echo "❌ Error: NON_INTERACTIVE mode requires: PROJECT_NAME, TIME_DURATION, PROMPT_TYPE"
+        exit 1
+    fi
+    
+    if [ "$PROMPT_TYPE" = "1" ] && [ -z "$CUSTOM_PROMPT" ]; then
+        echo "❌ Error: PROMPT_TYPE=1 requires CUSTOM_PROMPT"
+        exit 1
+    fi
+    
+    if [ "$PROMPT_TYPE" = "2" ] && [ -z "$PROJECT_TYPE" ]; then
+        echo "❌ Error: PROMPT_TYPE=2 requires PROJECT_TYPE (1-6)"
+        exit 1
+    fi
+    
+    echo "🚀 AI-Agent Project Creator (Non-Interactive Mode)"
+    echo "===================================================="
+    echo ""
+else
+    # Interactive mode
+    echo "🚀 AI-Agent Project Creator"
+    echo "=============================="
+    echo ""
+fi
 
-PROJECT_NAME="$1"
+# Get project name from argument, env var, or prompt
 if [ -z "$PROJECT_NAME" ]; then
+    PROJECT_NAME="$1"
+fi
+
+if [ -z "$PROJECT_NAME" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     read -p "Enter project name: " PROJECT_NAME
     echo ""
 fi
@@ -35,11 +67,14 @@ fi
 # Get time duration with validation
 TIME_TEXT=""
 while [ -z "$TIME_TEXT" ]; do
-    echo "⏱️  How long should the AI agent run?"
-    echo "Examples: 30m, 1h, 2h30m, indefinite"
-    echo ""
-    read -p "Enter duration: " TIME_DURATION
-    echo ""
+    # In non-interactive mode, TIME_DURATION is already set from env var
+    if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+        echo "⏱️  How long should the AI agent run?"
+        echo "Examples: 30m, 1h, 2h30m, indefinite"
+        echo ""
+        read -p "Enter duration: " TIME_DURATION
+        echo ""
+    fi
     
     # Parse time duration
     if [[ "$TIME_DURATION" =~ ^[Ii]nf ]]; then
@@ -58,7 +93,11 @@ while [ -z "$TIME_TEXT" ]; do
         echo "❌ Error: Invalid duration format '$TIME_DURATION'"
         echo "   Valid formats: 30m, 1h, 2h30m, indefinite"
         echo ""
-        # Loop will continue
+        # In non-interactive mode, exit on error
+        if [ "${NON_INTERACTIVE:-0}" = "1" ]; then
+            exit 1
+        fi
+        # In interactive mode, loop will continue
     fi
 done
 
@@ -77,8 +116,8 @@ git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || true
 GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
 GIT_USER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
 
-# If no global config, warn and prompt
-if [ -z "$GIT_USER_NAME" ]; then
+# If no global config, warn and prompt (only in interactive mode)
+if [ -z "$GIT_USER_NAME" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     echo ""
     echo "⚠️  No global git config found!"
     echo "💡 Tip: Set it globally with:"
@@ -92,20 +131,26 @@ if [ -z "$GIT_USER_NAME" ]; then
         git config user.name "$GIT_USER_NAME"
         git config user.email "$GIT_USER_EMAIL"
     fi
+elif [ -z "$GIT_USER_NAME" ]; then
+    # Non-interactive mode: use default
+    git config user.name "AI Agent"
+    git config user.email "ai-agent@localhost"
 fi
 
 # Create basic directory structure
 echo "🔧 Creating project structure..."
 mkdir -p src target .agent docs .qwen
 
-# Ask for prompt type
-echo "📝 Choose prompt type:"
-echo "1) Custom prompt (paste your own)"
-echo "2) Generic template (select from options)"
-echo ""
-read -p "Select (1-2) [2]: " PROMPT_TYPE
-PROMPT_TYPE=${PROMPT_TYPE:-2}
-echo ""
+# Ask for prompt type (or use env var in non-interactive mode)
+if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+    echo "📝 Choose prompt type:"
+    echo "1) Custom prompt (paste your own)"
+    echo "2) Generic template (select from options)"
+    echo ""
+    read -p "Select (1-2) [2]: " PROMPT_TYPE
+    PROMPT_TYPE=${PROMPT_TYPE:-2}
+    echo ""
+fi
 
 # Default prefix for all prompts
 DEFAULT_PREFIX="Your job is to work on this codebase and maintain the repository.
@@ -122,9 +167,12 @@ The specific project requirements:"
 
 # Handle custom prompt
 if [ "$PROMPT_TYPE" = "1" ]; then
-    echo "📋 Enter your custom prompt (press Ctrl+D when done):"
-    echo ""
-    CUSTOM_PROMPT=$(cat)
+    if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+        echo "📋 Enter your custom prompt (press Ctrl+D when done):"
+        echo ""
+        CUSTOM_PROMPT=$(cat)
+    fi
+    # In non-interactive mode, CUSTOM_PROMPT is already set from env var
     
     # Build final prompt (without time management - that goes in .agent/)
     cat > prompt.md << EOF
@@ -173,18 +221,20 @@ EOF
     echo ""
     echo "✅ Custom prompt configured"
 else
-    # Ask for project type
-    echo "📋 Select generic project template:"
-    echo "1) Codebase Porting (e.g., React to Vue)"
-    echo "2) Translation Services"
-    echo "3) Editing & Proofreading"
-    echo "4) Copywriting"
-    echo "5) Website Creation"
-    echo "6) Other/General Purpose"
-    echo ""
-    read -p "Select (1-6) [1]: " PROJECT_TYPE
-    PROJECT_TYPE=${PROJECT_TYPE:-1}
-    echo ""
+    # Ask for project type (or use env var in non-interactive mode)
+    if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+        echo "📋 Select generic project template:"
+        echo "1) Codebase Porting (e.g., React to Vue)"
+        echo "2) Translation Services"
+        echo "3) Editing & Proofreading"
+        echo "4) Copywriting"
+        echo "5) Website Creation"
+        echo "6) Other/General Purpose"
+        echo ""
+        read -p "Select (1-6) [1]: " PROJECT_TYPE
+        PROJECT_TYPE=${PROJECT_TYPE:-1}
+        echo ""
+    fi
     
     # Start with default prefix
     cat > prompt.md << EOF
@@ -422,8 +472,8 @@ echo "  - Time constraint: $TIME_TEXT"
 echo "  - Prompt: $([ "$PROMPT_TYPE" = "1" ] && echo "Custom" || echo "Generic template")"
 echo ""
 
-# Ask if user wants to start the AI agent now (unless skipped by caller)
-if [ "${SKIP_AUTOSTART:-0}" != "1" ]; then
+# Ask if user wants to start the AI agent now (unless skipped by caller or in non-interactive mode)
+if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     echo "🚀 Do you want to start the AI agent now for the project '$PROJECT_NAME'?"
     read -p "Start now? (y/N): " START_NOW
     echo ""
