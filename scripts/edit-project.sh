@@ -291,5 +291,5 @@ else
     echo ""
     echo "✅ Project configuration updated but not started"
     echo "📊 Project now at Version $NEXT_VERSION"
-    echo "Start later with: make run PROJECT_NAME=$PROJECT_NAME"
+    echo "Start later with: make run"
 fi

@@ -69,8 +69,9 @@ cd "../$PROJECT_NAME"
 
 # Initialize git repo
 echo "🔧 Initializing git repository..."
+git config --global init.defaultBranch main 2>/dev/null || true
 git init
-git checkout -b main
+git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || true
 
 # Configure git user - uses global git config (user should set this properly)
 GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
@@ -396,7 +397,7 @@ To start this AI agent loop:
 
 \`\`\`bash
 # From the ai-agent directory
-make run PROJECT_NAME=$PROJECT_NAME
+make run
 \`\`\`
 
 ## Current Status
@@ -432,11 +433,11 @@ if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
     # Get the ai-agent directory (parent of this script's directory)
     AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     cd "$AGENT_DIR"
-    make run PROJECT_NAME="$PROJECT_NAME"
+    make run PROJECT_NAME="$PROJECT_NAME"  # Internal call still needs PROJECT_NAME
 else
     echo "Next steps:"
     echo "1. cd ../$PROJECT_NAME"
     echo "2. Review prompt.md (already configured)" 
-    echo "3. Run from ai-agent directory: make run PROJECT_NAME=$PROJECT_NAME"
+    echo "3. Run from ai-agent directory: make run"
     echo ""
 fi

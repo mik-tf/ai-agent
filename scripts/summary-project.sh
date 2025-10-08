@@ -111,10 +111,10 @@ fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "💡 Quick Actions:"
-echo "   View logs:    make logs PROJECT_NAME=$PROJECT_NAME"
-echo "   Edit config:  make edit PROJECT_NAME=$PROJECT_NAME"
+echo "   View logs:    make logs"
+echo "   Edit config:  make edit"
 if [ -n "$PROJECT_PID" ]; then
-    echo "   Stop:         make stop PROJECT_NAME=$PROJECT_NAME"
+    echo "   Stop:         make stop"
 else
-    echo "   Start:        make run PROJECT_NAME=$PROJECT_NAME"
+    echo "   Start:        make run"
 fi

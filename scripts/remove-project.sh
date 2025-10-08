@@ -38,7 +38,7 @@ if [ -n "$PROJECT_PID" ]; then
         "$(dirname "$0")/stop-project.sh" "$PROJECT_NAME" || true
         sleep 1
     else
-        echo "❌ Cannot delete running project. Stop it first with: make stop PROJECT_NAME=$PROJECT_NAME"
+        echo "❌ Cannot delete running project. Stop it first with: make stop"
         exit 1
     fi
 fi

@@ -29,4 +29,4 @@ AGENT_PID=$!
 
 echo "✅ AI agent loop started with PID: $AGENT_PID"
 echo "📝 Logs are being written to agent-output.log and agent-errors.log"
-echo "🛑 To stop the loop, run: make stop PROJECT_NAME=$PROJECT_NAME"
+echo "🛑 To stop the loop, run: make stop"
