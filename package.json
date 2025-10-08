@@ -1,0 +1,31 @@
+{
+  "name": "@mik-tf/ai-agent",
+  "version": "1.0.0",
+  "description": "Implementation of this AI agent coding technique using Qwen",
+  "main": "index.js",
+  "scripts": {
+    "init": "bash agent-init.sh",
+    "run": "bash agent-loop.sh",
+    "run-advanced": "bash agent-loop-advanced.sh"
+  },
+  "bin": {
+    "ai-agent-cli": "./agent-init.sh"
+  },
+  "keywords": [
+    "qwen",
+    "ai",
+    "automation",
+    "coding",
+    "programming",
+    "agent",
+    "continuous-integration"
+  ],
+  "author": "ThreeFold",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mik-tf/ai-agent.git"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

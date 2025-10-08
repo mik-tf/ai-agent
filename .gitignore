@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Distribution artifacts
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Qwen specific
+.qwen/tmp/
+.qwen/cache/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Agent files
+.agent/TODO_BACKUP.md
+TODO_BACKUP/
