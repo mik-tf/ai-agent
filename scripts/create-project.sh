@@ -422,22 +422,24 @@ echo "  - Time constraint: $TIME_TEXT"
 echo "  - Prompt: $([ "$PROMPT_TYPE" = "1" ] && echo "Custom" || echo "Generic template")"
 echo ""
 
-# Ask if user wants to start the AI agent now
-echo "🚀 Do you want to start the AI agent now for the project '$PROJECT_NAME'?"
-read -p "Start now? (y/N): " START_NOW
-echo ""
+# Ask if user wants to start the AI agent now (unless skipped by caller)
+if [ "${SKIP_AUTOSTART:-0}" != "1" ]; then
+    echo "🚀 Do you want to start the AI agent now for the project '$PROJECT_NAME'?"
+    read -p "Start now? (y/N): " START_NOW
+    echo ""
 
-if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
-    echo "Starting AI agent for project '$PROJECT_NAME'..."
-    echo ""
-    # Get the ai-agent directory (parent of this script's directory)
-    AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-    cd "$AGENT_DIR"
-    make run PROJECT_NAME="$PROJECT_NAME"  # Internal call still needs PROJECT_NAME
-else
-    echo "Next steps:"
-    echo "1. cd ../$PROJECT_NAME"
-    echo "2. Review prompt.md (already configured)" 
-    echo "3. Run from ai-agent directory: make run"
-    echo ""
+    if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
+        echo "Starting AI agent for project '$PROJECT_NAME'..."
+        echo ""
+        # Get the ai-agent directory (parent of this script's directory)
+        AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+        cd "$AGENT_DIR"
+        make run PROJECT_NAME="$PROJECT_NAME"  # Internal call still needs PROJECT_NAME
+    else
+        echo "Next steps:"
+        echo "1. cd ../$PROJECT_NAME"
+        echo "2. Review/modify prompt.md if needed"
+        echo "3. cd ../ai-agent && make run PROJECT_NAME=$PROJECT_NAME"
+        echo "4. Or edit the project: make edit PROJECT_NAME=$PROJECT_NAME"
+    fi
 fi
